@@ -5,9 +5,9 @@ This reference is mostly for reminding me of what I've learnt about the GFX HAT 
 
 # Introduction
 
-The GFX HAT is Pimoroni's updated version of the venerable Display-O-Trom 3000, and brings a 128x64 graphic LCD, 6-section RGB backlight and 6 capacitive touch buttons with their own individual white LEDs.  It's more complex to use than the DoT3K HAT, but is also significantly more flexible.  
+The GFX HAT is Pimoroni's updated version of the venerable Display-O-Tron 3000, and brings a 128x64 graphic LCD, 6-section RGB backlight and 6 capacitive touch buttons with their own individual white LEDs.  It's more complex to use than the DoT3K HAT, but is also significantly more flexible.  
 
-Controlling the GFX HAT is split into three different sections:  one module for the LCD, one for the RGB backlight and one for the capacitive touch buttons and their LEDs.  The Pimoroni function reference can be found [here](http://docs.pimoroni.com/gfxhat/).
+Controlling the GFX HAT is split into three different sections:  one module for the LCD, one for the RGB backlight and one for the capacitive touch buttons and their LEDs.  The Pimoroni function reference can be found [here](http://docs.pimoroni.com/gfxhat/), and this is mostly an explaination/worked example of this, plus some information on how to design images to show on the matrix.
 
 # RGB Backlight
 
@@ -39,6 +39,8 @@ To use the captouch buttons, begin by importing the module:
 
 Before you can use the captouch buttons you have to tell them what to do when a button is pressed.  You do this by assigning a function to a button number:
 
+### Getting the buttons to work
+
 * `touch.on(button_number, function)`
 
 This tells the script that when button _button_number_ is pressed it should run _function_. _function_ must take two arguments, _channel_ and _event_.  _channel_ tells the function which button was pressed, and _event_ tells the function whether the button was pressed (by passing the string "press") or released (with the string "release").  This might sound a bit complex, but it's easier to grasp with an example:
@@ -54,7 +56,7 @@ def example_function(channel, event):
 touch.on(0, example_function)
 ```
 
-The function _example_function_ first checks which button (or channel) was pressed.  If this is `0`, corresponding to the "up" button, it then checks what the event is.  If the event is `press` it prints that the button was pressed, and if the event is `release` it prints that the button was released.  Finally, the line at the end tells the scripts that touching channel `0`, which is the "up" button, should trigger _example_function_.
+The function _example_function_ first checks which button (or channel) was pressed.  If this is `0`, corresponding to the "up" button, it then checks what the event is.  If the event is `press` it prints that the button was pressed, and if the event is `release` it prints that the button was released.  Finally, the line at the end tells the script that touching channel `0`, which is the "up" button, should trigger _example_function_.
 
 One of the first things that _example_function_ does is check which channel/button was pressed, and so you can actually assign all button presses to the same function if there is an `if`/`else if` statement checking which button was pressed:
 
@@ -62,3 +64,60 @@ One of the first things that _example_function_ does is check which channel/butt
 for x in range (6):
     touch.on(x, example_function)
 ```
+
+To use this you'll need _example_function_ to handle presses from all of the buttons:
+
+```
+def touched(channel, event):
+        if channel == 0:
+                if event == "press":
+                        print("UP Touched")
+                elif event == "release":
+                        print("UP Released")
+        if channel == 1:
+                if event == "press":
+                        print("DOWN Touched")
+                elif event == "release":
+                        print("DOWN Released")
+        if channel == 2:
+                if event == "press":
+                        print("BACK Touched")
+                elif event == "release":
+                        print("BACK Released")
+        if channel == 3:
+                if event == "press":
+                        print("MINUS Touched")
+                elif event == "release":
+                        print("MINUS Released")
+        if channel == 4:
+                if event == "press":
+                        print("ENTER Touched")
+                elif event == "release":
+                        print("ENTER Released")
+        if channel == 5:
+                if event == "press":
+                        print("PLUS Touched")
+                elif event == "release":
+                        print("PLUS Released")
+
+
+for x in range (6):
+        touch.on(x, touched)
+```
+This script defines a function called _touched_, which first checks the _channel_ to see which button has triggered an alert, then checks the _event_ to see whether the button was pressed or released, and finally prints this information.  At the very bottom, all six buttons are assigned to trigger the _touched_ function when they trigger an alert.
+
+### Using the button LEDs
+
+The LED backlight isn't the only source of shiny on the GFX HAT, each touch-button also has its own white LED.
+
+* `touch.set_led(led, state)`
+
+This line tells one of the LEDs to adopt _state_, where state is either 1 (on) or 0 (off).  The LEDs are identified in the same way as the touch buttons, with a number from 0-5, where 0 is the "up" button and 5 is the "plus" button.  It's really simple to use, just pick an LED and turn it on or off with `1` or `0`!
+
+### Additional touch functions
+
+The `touch` module comes with a few extra functions which tweak _how_ the buttons respond to being pressed.  
+
+* `touch.enable_repeat(enable)
+
+Whenever you touch a button it triggers the attached event just once.  It then doesn't do anything until your finger is lifted off the button.  That isn't what peple always want, and so there's a way to tell the HAT to continuously trigger an event while your finger is on the button.  Unfortunately you can't apply this to only some of the buttons, so either all of the buttons trigger continuously or none of them do.
