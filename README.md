@@ -118,6 +118,25 @@ This line tells one of the LEDs to adopt _state_, where state is either 1 (on) o
 
 The `touch` module comes with a few extra functions which tweak _how_ the buttons respond to being pressed.  
 
-* `touch.enable_repeat(enable)
+* `touch.enable_repeat(enable)`
 
-Whenever you touch a button it triggers the attached event just once.  It then doesn't do anything until your finger is lifted off the button.  That isn't what peple always want, and so there's a way to tell the HAT to continuously trigger an event while your finger is on the button.  Unfortunately you can't apply this to only some of the buttons, so either all of the buttons trigger continuously or none of them do.
+Whenever you touch a button it triggers the attached event just once.  It then doesn't do anything until your finger is lifted off the button.  That isn't what peple always want, and so there's a way to tell the HAT to continuously trigger an event while your finger is on the button.  Unfortunately you can't apply this to only some of the buttons, so either all of the buttons trigger continuously or none of them do.  This function supposedly allows you to cause the function to repeat at set intervals for as long as your finger is on the touchpad, but for the life of me I can't get it to work.
+
+* `touch.set_repeat_rate(interval)`
+
+This function sets how often a trigger signal is sent while your finger is on the touchpad.  It takes values from 35 to 560 millisections, which are rounded to the nearest 35 milliseconds.  Unfortunately not useful if you can't get the `touch.enable_repeat()` function to work.
+
+* `touch.high_sensitivity()`
+
+This very simple line increases the sensitivity of the touch buttons.  Without anything on top of them they will now trigger from 1-1.5 cm away (so you don't need to physically touch the button to activate it).  Pimoroni's notes state that this allows the touch buttons to function through 3mm Perspex plastic or similar materials which you might cover the PCB with in a case.
+
+* `touch.get_name(button)`
+
+This final function returns the built-in name of a button when given the ID number of a button (again, they're numbered from 0 at the upper left to  5 at the lower right).  If you ever forget the names you can use this to remind yourself:
+
+```
+for x in range (6):
+    print("Channel " + str(x) = " is called " + str(touch.get_name(x)))
+```
+
+This function will fetch the names of all of the buttons and print them on the terminal as a handy reference of their official names.  This might be useful for getting the buttons to work (see above).        
