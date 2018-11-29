@@ -6,11 +6,23 @@ The capacitive touch (captouch) buttons on the GFX HAT are a fun and quick way o
 
 The captouch buttons are numbered from 0-5, starting with the "up" button on the left of the HAT, moving down to the "back" button at the bottom left and then running left to right along the bottom.  The buttons are usually referred to by their number in code, so it's worth remembering which way the numbers are assigned.
 
+
+|Channel Number|Button name |
+|:----:|:----------:|
+|0      |up         |
+|1      |down       |
+|2      |back       |
+|3      |minus      |
+|4      |select     |
+|5      |plus       |
+
+What's interesting about the captouch buttons is that you don't need to add a step into your code which checks to see whether or not a button has been pressed.  Instead, you tell the program what to do when a button is pressed, and whenever you touch a button this will interrupt your program and do whatever you defined, before resuming what the program was doing.  This means that the button inputs are much more "real-time" than normal button setups.
+
 To use the captouch buttons, begin by importing the module:
 
 * `from gfxhat import touch`
 
-Before you can use the captouch buttons you have to tell them what to do when a button is pressed.  You do this by assigning a function to a button number:
+Before you can use the captouch buttons you have to tell them what to do when a button is pressed.  You do this by assigning a function to a button number.
 
 ### Getting the buttons to work
 
@@ -81,11 +93,11 @@ This script defines a function called _touched_, which first checks the _channel
 
 ### Using the button LEDs
 
-The LED backlight isn't the only source of shiny on the GFX HAT, each touch-button also has its own white LED.
+The LED backlight isn't the only source of shiny on the GFX HAT: each touch-button also has it's own white LED.
 
 * `touch.set_led(led, state)`
 
-This line tells one of the LEDs to adopt _state_, where state is either 1 (on) or 0 (off).  The LEDs are identified in the same way as the touch buttons, with a number from 0-5, where 0 is the "up" button and 5 is the "plus" button.  It's really simple to use, just pick an LED and turn it on or off with `1` or `0`!
+This line tells one of the LEDs to adopt _state_, where state is either the integer `1` (on) or `0` (off).  The LEDs are identified in the same way as the touch buttons, with a number from 0-5, where 0 is the "up" button and 5 is the "plus" button.  It's really simple to use, just pick an LED and turn it on or off with `1` or `0`!
 
 ### Additional touch functions
 
@@ -93,9 +105,9 @@ The `touch` module comes with a few extra functions which tweak _how_ the button
 
 * `touch.enable_repeat("enable")`
 
-Whenever you touch a button it triggers the attached event just once.  It then doesn't do anything until your finger is lifted off the button.  That isn't what peple always want, and so there's a way to tell the HAT to continuously trigger an event while your finger is on the button.  This took me a while to figure out becuase it's not really covered in the Pimoroni documentation.  First of all, by default repeat touch is disabled.  You have to enable it using the above line of code (note that `"enable"` must be in quotes).  The *real* secret is that when you hold a finger on the button the _event_ parameter is no longer "press" or "release", it is now _held_.  If you have an `if` statement checking which event is passed, you need to check for this:
+Whenever you touch a button it triggers the attached event just once.  It then doesn't do anything until your finger is lifted off the button.  That isn't what peple always want, and so there's a way to tell the HAT to continuously trigger an event while your finger is on the button.  This took me a while to figure out becuase it's not really covered in the Pimoroni documentation.  First of all, by default repeat touch is disabled.  You have to enable it using the above line of code (note that `"enable"` must be in quotes).  The *real* secret is that when you hold a finger on the button the _event_ parameter is no longer `press` or `release`, it is now `held`.  If you have an `if` statement checking which event is passed, you need to check for this:
 
-"""
+```
 def example_function(channel, event):
     if event == "press":
         print("A button was pressed")
@@ -103,13 +115,13 @@ def example_function(channel, event):
         print("A button was released")
     elif event == "held":
         print("...Still holding the button!")
-"""
+```
 
 By and large this works fine, though I've noticed that even with the high sensitivity option disabled (see below) the buttons sometimes think you've removed and then re-pressed your finger if you've only moved your finger a little bit. 
 
 * `touch.set_repeat_rate(interval)`
 
-This function sets how often a trigger signal is sent while your finger is on the touchpad.  It takes values from 35 to 560 milliseconds, and is rounded to the nearest 35 milliseconds (e.g., if you give it `75` it'll set it at 70 ms).  This gives you some finer control over how fast you get repeated triggers
+This function sets how often a trigger signal is sent while your finger is on the touchpad.  It takes values from 35 to 560 milliseconds, and is rounded to the nearest 35 milliseconds (e.g., if you give it `75` it'll set it at 70 ms).  This gives you some finer control over how fast you get repeated triggers.
 
 * `touch.high_sensitivity()`
 
@@ -135,4 +147,4 @@ Channel 4 is select
 Channel 5 is plus
 ```
 
-This function will fetch the names of all of the buttons and print them on the terminal as a handy reference of their official names.  This might be useful for getting the buttons to work (see above).      
+This code will fetch the names of all of the buttons and print them on the terminal as a handy reference of their official names.  This might be useful for getting the buttons to work (see above).      
