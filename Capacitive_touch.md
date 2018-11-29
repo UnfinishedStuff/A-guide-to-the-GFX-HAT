@@ -1,6 +1,8 @@
 
 
-# Capacitive touch
+# Capacitive touch and touchpad LEDs
+
+The capacitive touch (captouch) buttons on the GFX HAT are a fun and quick way of sending inputs to the HAT.  Rather than mechanically pressing bits of metal together they detect the water in your fingers to sense button presses.
 
 The captouch buttons are numbered from 0-5, starting with the "up" button on the left of the HAT, moving down to the "back" button at the bottom left and then running left to right along the bottom.  The buttons are usually referred to by their number in code, so it's worth remembering which way the numbers are assigned.
 
@@ -27,7 +29,7 @@ def example_function(channel, event):
 touch.on(0, example_function)
 ```
 
-The function _example_function_ first checks which button (or channel) was pressed.  If this is `0`, corresponding to the "up" button, it then checks what the event is.  If the event is `press` it prints that the button was pressed, and if the event is `release` it prints that the button was released.  Finally, the line at the end tells the script that touching channel `0`, which is the "up" button, should trigger _example_function_.
+The function _example_function_ first checks which button was pressed by checking the _channel_ parameter: these are the numbers of the pads, as described in the introduction.  If this is `0`, corresponding to the "up" button, it then checks what the event is.  If the event is `press` it prints that the button was pressed, and if the event is `release` it prints that the button was released.  Finally, the line at the end tells the script that touching channel `0`, which is the "up" button, should trigger _example_function_.
 
 One of the first things that _example_function_ does is check which channel/button was pressed, and so you can actually assign all button presses to the same function if there is an `if`/`else if` statement checking which button was pressed:
 
@@ -89,13 +91,25 @@ This line tells one of the LEDs to adopt _state_, where state is either 1 (on) o
 
 The `touch` module comes with a few extra functions which tweak _how_ the buttons respond to being pressed.  
 
-* `touch.enable_repeat(enable)`
+* `touch.enable_repeat("enable")`
 
-Whenever you touch a button it triggers the attached event just once.  It then doesn't do anything until your finger is lifted off the button.  That isn't what peple always want, and so there's a way to tell the HAT to continuously trigger an event while your finger is on the button.  Unfortunately you can't apply this to only some of the buttons, so either all of the buttons trigger continuously or none of them do.  This function supposedly allows you to cause the function to repeat at set intervals for as long as your finger is on the touchpad, but for the life of me I can't get it to work.
+Whenever you touch a button it triggers the attached event just once.  It then doesn't do anything until your finger is lifted off the button.  That isn't what peple always want, and so there's a way to tell the HAT to continuously trigger an event while your finger is on the button.  This took me a while to figure out becuase it's not really covered in the Pimoroni documentation.  First of all, by default repeat touch is disabled.  You have to enable it using the above line of code (note that `"enable"` must be in quotes).  The *real* secret is that when you hold a finger on the button the _event_ parameter is no longer "press" or "release", it is now _held_.  If you have an `if` statement checking which event is passed, you need to check for this:
+
+"""
+def example_function(channel, event):
+    if event == "press":
+        print("A button was pressed")
+    elif event == "release":
+        print("A button was released")
+    elif event == "held":
+        print("...Still holding the button!")
+"""
+
+By and large this works fine, though I've noticed that even with the high sensitivity option disabled (see below) the buttons sometimes think you've removed and then re-pressed your finger if you've only moved your finger a little bit. 
 
 * `touch.set_repeat_rate(interval)`
 
-This function sets how often a trigger signal is sent while your finger is on the touchpad.  It takes values from 35 to 560 millisections, which are rounded to the nearest 35 milliseconds.  Unfortunately not useful if you can't get the `touch.enable_repeat()` function to work.
+This function sets how often a trigger signal is sent while your finger is on the touchpad.  It takes values from 35 to 560 milliseconds, and is rounded to the nearest 35 milliseconds (e.g., if you give it `75` it'll set it at 70 ms).  This gives you some finer control over how fast you get repeated triggers
 
 * `touch.high_sensitivity()`
 
@@ -107,7 +121,18 @@ This final function returns the built-in name of a button when given the ID numb
 
 ```
 for x in range (6):
-    print("Channel " + str(x) = " is called " + str(touch.get_name(x)))
+    print("Channel " + str(x) + " is called " + str(touch.get_name(x)))
+```
+
+The output looks like this:
+
+```
+Channel 0 is up
+Channel 1 is down
+Channel 2 is back
+Channel 3 is minus
+Channel 4 is select
+Channel 5 is plus
 ```
 
 This function will fetch the names of all of the buttons and print them on the terminal as a handy reference of their official names.  This might be useful for getting the buttons to work (see above).      
